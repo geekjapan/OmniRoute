@@ -2401,6 +2401,123 @@ test("copilot-web validator: empty input → paste prompt", async () => {
   assert.match(result.error || "", /Paste your access_token/i);
 });
 
+function encodeJwtPart(value: unknown): string {
+  return Buffer.from(JSON.stringify(value))
+    .toString("base64")
+    .replace(/=/g, "")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_");
+}
+
+function makeFakeM365Jwt(payload: Record<string, unknown>): string {
+  return [
+    encodeJwtPart({ alg: "none", typ: "JWT" }),
+    encodeJwtPart(payload),
+    "fake-signature",
+  ].join(".");
+}
+
+const validM365CopilotPayload = {
+  aud: "https://substrate.office.com/sydney",
+  exp: Math.floor(Date.now() / 1000) + 3600,
+  oid: "fake-user-oid",
+  tid: "fake-tenant-id",
+};
+
+test("copilot-m365-web validator accepts structurally valid M365 JWT without personal probe", async () => {
+  globalThis.fetch = async (url) => {
+    throw new Error(`unexpected fetch: ${String(url)}`);
+  };
+
+  const result = await validateProviderApiKey({
+    provider: "copilot-m365-web",
+    apiKey: makeFakeM365Jwt(validM365CopilotPayload),
+  });
+
+  assert.deepEqual(result, { valid: true, error: null });
+});
+
+test("copilot-m365-web validator rejects wrong audience", async () => {
+  globalThis.fetch = async (url) => {
+    throw new Error(`unexpected fetch: ${String(url)}`);
+  };
+
+  const result = await validateProviderApiKey({
+    provider: "copilot-m365-web",
+    apiKey: makeFakeM365Jwt({
+      ...validM365CopilotPayload,
+      aud: "https://copilot.microsoft.com",
+    }),
+  });
+
+  assert.equal(result.valid, false);
+  assert.match(result.error || "", /M365 Copilot\/Substrate token/i);
+});
+
+test("copilot-m365-web validator rejects expired tokens", async () => {
+  globalThis.fetch = async (url) => {
+    throw new Error(`unexpected fetch: ${String(url)}`);
+  };
+
+  const result = await validateProviderApiKey({
+    provider: "copilot-m365-web",
+    apiKey: makeFakeM365Jwt({
+      ...validM365CopilotPayload,
+      exp: Math.floor(Date.now() / 1000) - 60,
+    }),
+  });
+
+  assert.equal(result.valid, false);
+  assert.match(result.error || "", /expired|re-authentication/i);
+});
+
+test("copilot-m365-web validator rejects missing user or tenant claims", async () => {
+  globalThis.fetch = async (url) => {
+    throw new Error(`unexpected fetch: ${String(url)}`);
+  };
+
+  const missingUser = await validateProviderApiKey({
+    provider: "copilot-m365-web",
+    apiKey: makeFakeM365Jwt({
+      aud: validM365CopilotPayload.aud,
+      exp: validM365CopilotPayload.exp,
+      tid: validM365CopilotPayload.tid,
+    }),
+  });
+  assert.equal(missingUser.valid, false);
+  assert.match(missingUser.error || "", /supported M365 Copilot token/i);
+
+  const missingTenant = await validateProviderApiKey({
+    provider: "copilot-m365-web",
+    apiKey: makeFakeM365Jwt({
+      aud: validM365CopilotPayload.aud,
+      exp: validM365CopilotPayload.exp,
+      oid: validM365CopilotPayload.oid,
+    }),
+  });
+  assert.equal(missingTenant.valid, false);
+  assert.match(missingTenant.error || "", /supported M365 Copilot token/i);
+});
+
+test("copilot-web validator remains personal and does not apply M365 audience checks", async () => {
+  let capturedUrl = "";
+  globalThis.fetch = async (url) => {
+    capturedUrl = String(url);
+    return new Response(JSON.stringify({ conversations: [] }), { status: 200 });
+  };
+
+  const result = await validateProviderApiKey({
+    provider: "copilot-web",
+    apiKey: makeFakeM365Jwt({
+      aud: "not-the-m365-substrate-audience",
+      exp: Math.floor(Date.now() / 1000) + 3600,
+    }),
+  });
+
+  assert.equal(result.valid, true);
+  assert.match(capturedUrl, /https:\/\/copilot\.microsoft\.com\/c\/api\/conversations/);
+});
+
 // ─── t3-web validator ────────────────────────────────────────────────────────
 
 test("t3-web validator: valid cookies → valid", async () => {

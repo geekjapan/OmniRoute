@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-const { getCopilotMode, extractAccessToken, sessionPoolKey, solveHashcash } =
+const { CopilotWebExecutor, getCopilotMode, extractAccessToken, sessionPoolKey, solveHashcash } =
   await import("../../open-sse/executors/copilot-web.ts");
 
 test("getCopilotMode maps known models to their Copilot modes", () => {
@@ -106,4 +106,91 @@ test("solveHashcash succeeds for difficulty=1 (a single leading zero is common)"
   // ~1 in 16 chance of leading "0" — well within the 10M iteration budget.
   const result = solveHashcash("any-parameter", 1);
   assert.ok(typeof result === "number" && result >= 0, "expected a numeric nonce");
+});
+
+test("CopilotWebExecutor keeps personal Copilot start and chat protocol separate from M365", async () => {
+  const originalFetch = globalThis.fetch;
+  const originalWebSocket = globalThis.WebSocket;
+  const fetchCalls: Array<{ url: string; init?: RequestInit }> = [];
+
+  class MockWebSocket {
+    static urls: string[] = [];
+    static sent: string[] = [];
+
+    onopen: (() => void) | null = null;
+    onmessage: ((event: { data: string }) => void) | null = null;
+    onerror: ((event: Event) => void) | null = null;
+    onclose: (() => void) | null = null;
+
+    constructor(url: string) {
+      MockWebSocket.urls.push(url);
+      queueMicrotask(() => this.onopen?.());
+    }
+
+    send(data: string) {
+      MockWebSocket.sent.push(data);
+      queueMicrotask(() =>
+        this.onmessage?.({ data: JSON.stringify({ event: "appendText", text: "personal reply" }) })
+      );
+      queueMicrotask(() => this.onmessage?.({ data: JSON.stringify({ event: "done" }) }));
+    }
+
+    close() {
+      this.onclose?.();
+    }
+  }
+
+  globalThis.fetch = (async (url: RequestInfo | URL, init?: RequestInit) => {
+    fetchCalls.push({ url: String(url), init });
+    return {
+      ok: true,
+      status: 200,
+      json: async () => ({ conversationId: "personal-conversation-1", remainingTurns: 100 }),
+      text: async () => "",
+      headers: {
+        getSetCookie: () => ["MC1=personal-cookie; Path=/"],
+      },
+    };
+  }) as typeof fetch;
+  globalThis.WebSocket = MockWebSocket as unknown as typeof WebSocket;
+
+  try {
+    const executor = new CopilotWebExecutor();
+    const result = await executor.execute({
+      model: "copilot",
+      body: { messages: [{ role: "user", content: "hello personal copilot" }] },
+      stream: false,
+      credentials: { apiKey: "personal-access-token-for-regression" },
+      signal: null,
+    });
+
+    assert.equal(result.response.status, 200);
+    const body = (await result.response.clone().json()) as any;
+    assert.equal(body.choices[0].message.content, "personal reply");
+
+    assert.equal(fetchCalls.length, 1);
+    assert.equal(fetchCalls[0].url, "https://copilot.microsoft.com/c/api/start");
+    assert.equal(fetchCalls[0].init?.method, "POST");
+    assert.equal(
+      (fetchCalls[0].init?.headers as Record<string, string>).Authorization,
+      "Bearer personal-access-token-for-regression"
+    );
+
+    assert.equal(MockWebSocket.urls.length, 1);
+    const wsUrl = new URL(MockWebSocket.urls[0]);
+    assert.equal(wsUrl.origin, "wss://copilot.microsoft.com");
+    assert.equal(wsUrl.pathname, "/c/api/chat");
+    assert.equal(wsUrl.searchParams.get("api-version"), "2");
+    assert.equal(wsUrl.searchParams.has("access_token"), false);
+
+    const sentFrame = JSON.parse(MockWebSocket.sent[0]);
+    assert.equal(sentFrame.event, "send");
+    assert.equal(sentFrame.conversationId, "personal-conversation-1");
+    assert.deepEqual(sentFrame.content, [{ type: "text", text: "hello personal copilot" }]);
+    assert.equal(sentFrame.mode, "chat");
+    assert.equal(result.url, "wss://copilot.microsoft.com/c/api/chat?api-version=2");
+  } finally {
+    globalThis.fetch = originalFetch;
+    globalThis.WebSocket = originalWebSocket;
+  }
 });

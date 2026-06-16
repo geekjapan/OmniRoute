@@ -8,11 +8,10 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 
-const {
-  TOKEN_EXTRACTION_CONFIGS,
-  getExtractionConfig,
-  listExtractionConfigs,
-} = await import("../../open-sse/services/tokenExtractionConfig.ts");
+const { TOKEN_EXTRACTION_CONFIGS, getExtractionConfig, listExtractionConfigs } =
+  await import("../../open-sse/services/tokenExtractionConfig.ts");
+const { getWebSessionCredentialRequirement } =
+  await import("../../src/shared/providers/webSessionCredentials.ts");
 
 describe("tokenExtractionConfig", () => {
   it("exports TOKEN_EXTRACTION_CONFIGS as a Map", () => {
@@ -101,6 +100,19 @@ describe("tokenExtractionConfig", () => {
       assert.ok(cfg !== undefined, `getExtractionConfig("${id}") returned undefined`);
       assert.equal(cfg?.providerId, id);
     }
+  });
+
+  it("does not register unverified automatic extraction for M365 Copilot Web", () => {
+    assert.ok(
+      getWebSessionCredentialRequirement("copilot-m365-web"),
+      "manual M365 credential metadata should exist before automatic extraction is considered"
+    );
+    assert.equal(getExtractionConfig("copilot-m365-web"), undefined);
+    assert.equal(TOKEN_EXTRACTION_CONFIGS.has("copilot-m365-web"), false);
+    assert.equal(
+      listExtractionConfigs().some((cfg) => cfg.providerId === "copilot-m365-web"),
+      false
+    );
   });
 
   it("listExtractionConfigs returns all configs as an array", () => {

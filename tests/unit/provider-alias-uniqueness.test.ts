@@ -17,7 +17,14 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
+import {
+  CopilotM365WebExecutor,
+  getExecutor,
+  hasSpecializedExecutor,
+} from "../../open-sse/executors/index.ts";
 import { PROVIDER_ID_TO_ALIAS } from "../../open-sse/config/providerModels.ts";
+import { getProviderModels } from "../../open-sse/config/providerModels.ts";
+import { getRegistryEntry } from "../../open-sse/config/providerRegistry.ts";
 import { resolveProviderId, getProviderAlias } from "../../src/shared/constants/providers.ts";
 
 test("no two provider IDs share the same alias in the open-sse registry", () => {
@@ -61,4 +68,31 @@ test("src/shared providers map resolves the same aliases unambiguously", () => {
   assert.equal(getProviderAlias("qwen"), "qw");
   assert.equal(getProviderAlias("kimi"), "kimi");
   assert.equal(getProviderAlias("hackclub"), "hc");
+});
+
+test("copilot-m365-web uses an enterprise alias without colliding with personal Copilot", () => {
+  const registryEntry = getRegistryEntry("copilot-m365-web");
+  assert.equal(registryEntry?.id, "copilot-m365-web");
+  assert.equal(registryEntry?.alias, "copilot-m365");
+  assert.equal(registryEntry?.executor, "copilot-m365-web");
+  assert.equal(registryEntry?.format, "openai");
+  assert.deepEqual(
+    registryEntry?.models.map((model) => model.id),
+    ["m365-copilot"]
+  );
+
+  assert.equal(PROVIDER_ID_TO_ALIAS["copilot-web"], "copilot-web");
+  assert.equal(PROVIDER_ID_TO_ALIAS["copilot-m365-web"], "copilot-m365");
+  assert.notEqual(PROVIDER_ID_TO_ALIAS["copilot-m365-web"], "copilot");
+  assert.equal(resolveProviderId("copilot"), "copilot-web");
+  assert.equal(resolveProviderId("copilot-m365"), "copilot-m365-web");
+  assert.equal(getProviderAlias("copilot-m365-web"), "copilot-m365");
+  assert.equal(getProviderModels("copilot-m365-web")[0]?.id, "m365-copilot");
+});
+
+test("copilot-m365-web is wired into specialized executor dispatch and exports", () => {
+  assert.equal(hasSpecializedExecutor("copilot-m365-web"), true);
+  assert.equal(hasSpecializedExecutor("copilot-m365"), true);
+  assert.equal(getExecutor("copilot-m365-web") instanceof CopilotM365WebExecutor, true);
+  assert.equal(getExecutor("copilot-m365") instanceof CopilotM365WebExecutor, true);
 });

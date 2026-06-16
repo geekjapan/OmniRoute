@@ -1,3 +1,4 @@
+import { Buffer } from "node:buffer";
 import { randomUUID } from "node:crypto";
 import { getEmbeddingProvider } from "@omniroute/open-sse/config/embeddingRegistry.ts";
 import { getRerankProvider } from "@omniroute/open-sse/config/rerankRegistry.ts";
@@ -214,6 +215,14 @@ function withCustomUserAgent(init: RequestInit, providerSpecificData: any = {}) 
       providerSpecificData
     ),
   };
+}
+
+function safeDecodeURIComponent(value: string): string {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
 }
 
 /**
@@ -3722,6 +3731,56 @@ async function validateCopilotWebProvider({ apiKey, providerSpecificData = {} }:
   }
 }
 
+// ── Microsoft 365 Copilot Web token validator ──
+export async function validateCopilotM365WebProvider({ apiKey }: any) {
+  const { extractM365CopilotAccessToken, parseM365CopilotJwt } =
+    await import("@omniroute/open-sse/executors/copilot-m365-web.ts");
+  const rawInput = String(apiKey || "");
+  const decodedInput = safeDecodeURIComponent(rawInput);
+  const token =
+    extractM365CopilotAccessToken(rawInput) ||
+    (decodedInput !== rawInput ? extractM365CopilotAccessToken(decodedInput) : null);
+  if (!token) {
+    return {
+      valid: false,
+      error:
+        "Could not extract M365 Copilot access_token. Paste a bare JWT, Bearer token, access_token= value, or copied Chathub URL.",
+    };
+  }
+
+  try {
+    parseM365CopilotJwt(token);
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Could not parse M365 Copilot access_token JWT";
+    if (/payload/i.test(message)) {
+      return { valid: false, error: "Could not parse M365 Copilot access_token JWT payload" };
+    }
+    if (/M365 Copilot\/Substrate|not an M365/i.test(message)) {
+      return {
+        valid: false,
+        error: "Token is not an M365 Copilot/Substrate token. Re-extract a supported access_token.",
+      };
+    }
+    if (/expired/i.test(message)) {
+      return {
+        valid: false,
+        error: "M365 Copilot access_token is expired; re-authentication is required.",
+      };
+    }
+    if (/user identity|tenant identity/i.test(message)) {
+      return {
+        valid: false,
+        error:
+          "M365 Copilot access_token is missing supported user or tenant claims. Re-extract a supported M365 Copilot token.",
+      };
+    }
+    return { valid: false, error: message };
+  }
+
+  return { valid: true, error: null };
+}
+
 // ── t3.chat Web cookie validator ──
 async function validateT3WebProvider({ apiKey, providerSpecificData = {} }: any) {
   try {
@@ -4058,6 +4117,7 @@ export async function validateProviderApiKey({ provider, apiKey, providerSpecifi
     "adapta-web": validateAdaptaWebProvider,
     "claude-web": validateClaudeWebProvider,
     "gemini-web": validateGeminiWebProvider,
+    "copilot-m365-web": validateCopilotM365WebProvider,
     "copilot-web": validateCopilotWebProvider,
     "t3-web": validateT3WebProvider,
     "azure-openai": validateAzureOpenAIProvider,

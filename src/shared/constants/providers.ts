@@ -448,6 +448,19 @@ export const WEB_COOKIE_PROVIDERS = {
     subscriptionRisk: true,
     riskNoticeVariant: "webCookie",
   },
+  "copilot-m365-web": {
+    id: "copilot-m365-web",
+    alias: "copilot-m365",
+    name: "Microsoft 365 Copilot Web",
+    icon: "business_center",
+    color: "#0078D4",
+    textIcon: "M365",
+    website: "https://m365.cloud.microsoft/chat",
+    authHint:
+      "Paste your Microsoft 365 Copilot/Substrate access_token JWT from an authenticated work browser session.",
+    subscriptionRisk: true,
+    riskNoticeVariant: "webCookie",
+  },
   "t3-web": {
     id: "t3-web",
     alias: "t3chat",

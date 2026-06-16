@@ -16,6 +16,8 @@ export type WebSessionCredentialRequirement =
       storageKeys: readonly [];
     };
 
+type WebSessionCredentialProviderId = keyof typeof WEB_COOKIE_PROVIDERS | "copilot-m365-web";
+
 export const WEB_SESSION_CREDENTIAL_REQUIREMENTS = {
   "chatgpt-web": {
     kind: "cookie",
@@ -86,6 +88,14 @@ export const WEB_SESSION_CREDENTIAL_REQUIREMENTS = {
     placeholder: "access_token=... or a DevTools HAR export",
     acceptsFullCookieHeader: false,
     storageKeys: ["token", "access_token", "accessToken"],
+  },
+  "copilot-m365-web": {
+    kind: "token",
+    credentialName: "M365/Substrate access_token",
+    placeholder:
+      "Paste the Microsoft 365 Copilot/Substrate access_token JWT, for example m365AccessToken=...",
+    acceptsFullCookieHeader: false,
+    storageKeys: ["token", "access_token", "accessToken", "m365AccessToken"],
   },
   "t3-web": {
     kind: "cookie",
@@ -209,7 +219,7 @@ export const WEB_SESSION_CREDENTIAL_REQUIREMENTS = {
     acceptsFullCookieHeader: true,
     storageKeys: ["cookie", "arena-auth-prod-v1", "session"],
   },
-} satisfies Record<keyof typeof WEB_COOKIE_PROVIDERS, WebSessionCredentialRequirement>;
+} satisfies Record<WebSessionCredentialProviderId, WebSessionCredentialRequirement>;
 
 export function getWebSessionCredentialRequirement(
   providerId: unknown

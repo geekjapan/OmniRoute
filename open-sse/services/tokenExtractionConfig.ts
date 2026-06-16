@@ -110,9 +110,7 @@ const RAW_CONFIGS: TokenExtractionConfig[] = [
     "ChatGPT Web",
     "https://chatgpt.com/auth/login",
     "https://chatgpt.com",
-    [
-      { type: "cookie", name: "__Secure-next-auth.session-token", domain: ".chatgpt.com" },
-    ],
+    [{ type: "cookie", name: "__Secure-next-auth.session-token", domain: ".chatgpt.com" }],
     "Log in to ChatGPT. The __Secure-next-auth.session-token cookie will be extracted after login."
   ),
 
@@ -146,9 +144,7 @@ const RAW_CONFIGS: TokenExtractionConfig[] = [
     "Perplexity Web",
     "https://www.perplexity.ai/login",
     "https://www.perplexity.ai",
-    [
-      { type: "cookie", name: "__Secure-next-auth.session-token", domain: ".perplexity.ai" },
-    ],
+    [{ type: "cookie", name: "__Secure-next-auth.session-token", domain: ".perplexity.ai" }],
     "Log in to Perplexity. The __Secure-next-auth.session-token cookie will be extracted.",
     { cookieDomain: ".perplexity.ai" }
   ),
@@ -223,9 +219,7 @@ const RAW_CONFIGS: TokenExtractionConfig[] = [
     "Poe (Quora)",
     "https://poe.com/login",
     "https://poe.com",
-    [
-      { type: "cookie", name: "p-b", domain: ".poe.com" },
-    ],
+    [{ type: "cookie", name: "p-b", domain: ".poe.com" }],
     "Log in to Poe at poe.com. The session cookie will be extracted.",
     { cookieDomain: ".poe.com" }
   ),
@@ -236,12 +230,12 @@ const RAW_CONFIGS: TokenExtractionConfig[] = [
     "Microsoft Copilot",
     "https://copilot.microsoft.com/",
     "https://copilot.microsoft.com",
-    [
-      { type: "cookie", name: "RPSCAuth", domain: ".microsoft.com" },
-    ],
+    [{ type: "cookie", name: "RPSCAuth", domain: ".microsoft.com" }],
     "Log in with your Microsoft account at copilot.microsoft.com. The session auth cookie will be extracted.",
     { cookieDomain: ".microsoft.com" }
   ),
+  // M365 Copilot Web stays manual-only until a verified browser origin and token
+  // source are captured in repo artifacts. Do not add guessed extraction surfaces.
 
   // ── DuckDuckGo Web ────────────────────────────────────────
   config(
@@ -249,9 +243,7 @@ const RAW_CONFIGS: TokenExtractionConfig[] = [
     "DuckDuckGo AI Chat",
     "https://duckduckgo.com/?q=DuckDuckGo+AI+Chat&ia=chat&duckai=1",
     "https://duckduckgo.com",
-    [
-      { type: "cookie", name: "duckai", domain: ".duckduckgo.com" },
-    ],
+    [{ type: "cookie", name: "duckai", domain: ".duckduckgo.com" }],
     "Open DuckDuckGo AI Chat. Some models may require a free account. The duckai cookie will be extracted.",
     {
       cookieDomain: ".duckduckgo.com",
@@ -265,9 +257,7 @@ const RAW_CONFIGS: TokenExtractionConfig[] = [
     "DouBao (ByteDance)",
     "https://www.doubao.com/",
     "https://www.doubao.com",
-    [
-      { type: "cookie", name: "sessionid", domain: ".doubao.com" },
-    ],
+    [{ type: "cookie", name: "sessionid", domain: ".doubao.com" }],
     "Log in to DouBao at doubao.com with your ByteDance account. The sessionid will be extracted.",
     { cookieDomain: ".doubao.com" }
   ),
@@ -278,9 +268,7 @@ const RAW_CONFIGS: TokenExtractionConfig[] = [
     "T3 Chat",
     "https://t3.chat/login",
     "https://t3.chat",
-    [
-      { type: "localStorage", key: "token" },
-    ],
+    [{ type: "localStorage", key: "token" }],
     "Log in to T3 Chat at t3.chat using Google/GitHub. The token from localStorage will be extracted.",
     { pollingConfig: QUICK_POLLING }
   ),
@@ -305,9 +293,7 @@ const RAW_CONFIGS: TokenExtractionConfig[] = [
     "v0 by Vercel",
     "https://v0.dev/login",
     "https://v0.dev",
-    [
-      { type: "cookie", name: "__Secure-next-auth.session-token", domain: ".v0.dev" },
-    ],
+    [{ type: "cookie", name: "__Secure-next-auth.session-token", domain: ".v0.dev" }],
     "Log in to v0.dev with your Vercel/Google/GitHub account. The session cookie will be extracted.",
     { cookieDomain: ".v0.dev" }
   ),
@@ -318,9 +304,7 @@ const RAW_CONFIGS: TokenExtractionConfig[] = [
     "Meta AI (Muse)",
     "https://www.meta.ai/",
     "https://www.meta.ai",
-    [
-      { type: "cookie", name: "session", domain: ".meta.ai" },
-    ],
+    [{ type: "cookie", name: "session", domain: ".meta.ai" }],
     "Log in to Meta AI at meta.ai with your Facebook/Instagram account. The session cookie will be extracted.",
     { cookieDomain: ".meta.ai" }
   ),
@@ -331,9 +315,7 @@ const RAW_CONFIGS: TokenExtractionConfig[] = [
     "Adapta AI",
     "https://agent.adapta.one/login",
     "https://agent.adapta.one",
-    [
-      { type: "cookie", name: "__session", domain: ".adapta.one" },
-    ],
+    [{ type: "cookie", name: "__session", domain: ".adapta.one" }],
     "Log in to Adapta at agent.adapta.one. The session token will be extracted.",
     { cookieDomain: ".adapta.one" }
   ),
@@ -344,9 +326,7 @@ const RAW_CONFIGS: TokenExtractionConfig[] = [
     "VeoAI Free",
     "https://veoaifree.com/",
     "https://veoaifree.com",
-    [
-      { type: "cookie", name: "wordpress_logged_in", domain: ".veoaifree.com" },
-    ],
+    [{ type: "cookie", name: "wordpress_logged_in", domain: ".veoaifree.com" }],
     "Log in to VeoAI Free at veoaifree.com. The WordPress session cookie will be extracted.",
     {
       cookieDomain: ".veoaifree.com",

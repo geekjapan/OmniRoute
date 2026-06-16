@@ -30,6 +30,14 @@ test("web session credential metadata identifies cookie, token, and no-auth prov
     acceptsFullCookieHeader: false,
     storageKeys: ["token", "access_token", "accessToken"],
   });
+  assert.deepEqual(webSessionCredentials.getWebSessionCredentialRequirement("copilot-m365-web"), {
+    kind: "token",
+    credentialName: "M365/Substrate access_token",
+    placeholder:
+      "Paste the Microsoft 365 Copilot/Substrate access_token JWT, for example m365AccessToken=...",
+    acceptsFullCookieHeader: false,
+    storageKeys: ["token", "access_token", "accessToken", "m365AccessToken"],
+  });
   assert.deepEqual(webSessionCredentials.getWebSessionCredentialRequirement("deepseek-web"), {
     kind: "token",
     credentialName: "userToken",
@@ -85,4 +93,20 @@ test("no-auth web providers can be saved without an API key", () => {
   assert.equal(providers.providerAllowsOptionalApiKey("veoaifree-web"), true);
   assert.equal(webSessionCredentials.requiresWebSessionCredential("veoaifree-web"), false);
   assert.equal(webSessionCredentials.requiresWebSessionCredential("chatgpt-web"), true);
+});
+
+test("M365 Copilot Web credential metadata is distinct from personal Copilot Web", () => {
+  const personal = webSessionCredentials.getWebSessionCredentialRequirement("copilot-web");
+  const m365 = webSessionCredentials.getWebSessionCredentialRequirement("copilot-m365-web");
+
+  assert.ok(personal);
+  assert.ok(m365);
+  assert.notDeepEqual(m365, personal);
+  assert.equal(m365.kind, "token");
+  assert.equal(m365.acceptsFullCookieHeader, false);
+  assert.ok(m365.credentialName.includes("M365"));
+  assert.ok(m365.credentialName.includes("Substrate"));
+  assert.match(m365.placeholder, /Microsoft 365 Copilot\/Substrate access_token JWT/);
+  assert.doesNotMatch(m365.placeholder, /copilot\.microsoft\.com/);
+  assert.deepEqual(m365.storageKeys, ["token", "access_token", "accessToken", "m365AccessToken"]);
 });

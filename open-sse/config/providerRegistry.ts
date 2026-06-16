@@ -3080,6 +3080,17 @@ const _REGISTRY_EAGER: Record<string, RegistryEntry> = {
     ],
   },
 
+  "copilot-m365-web": {
+    id: "copilot-m365-web",
+    alias: "copilot-m365",
+    format: "openai",
+    executor: "copilot-m365-web",
+    baseUrl: "wss://substrate.svc.cloud.microsoft/m365Copilot/Chathub",
+    authType: "apikey",
+    authHeader: "authorization",
+    models: [{ id: "m365-copilot", name: "Microsoft 365 Copilot (web)" }],
+  },
+
   "veoaifree-web": {
     id: "veoaifree-web",
     alias: "veo-free",
