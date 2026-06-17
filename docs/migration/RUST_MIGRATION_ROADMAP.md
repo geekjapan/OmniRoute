@@ -2,7 +2,7 @@
 
 Status: planning deliverable. No production code migration is included in this change.
 
-Source handoff: `D:\dev\OmniRoute\docs\handoff.md`.
+Source handoff: `docs/handoff.md`.
 
 Workflow results:
 
