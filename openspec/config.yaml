@@ -1,0 +1,111 @@
+schema: spec-driven
+
+# Project context shown to AI when creating OpenSpec artifacts.
+# Source of truth for project rules: CLAUDE.md (Claude) / AGENTS.md (Codex & other agents).
+# Keep this in sync with the "Hard Rules" + conventions in CLAUDE.md.
+context: |
+  Project: OmniRoute — unified AI proxy/router. One endpoint, 226 provider entries,
+  auto-fallback. Monorepo: src/ (Next.js 16 App Router app, TypeScript), open-sse/
+  (@omniroute/open-sse streaming engine workspace, .ts/.js), electron/ (desktop app),
+  tests/, bin/ (CLI). This repo is a fork of diegosouzapw/OmniRoute.
+
+  Stack:
+  - Node.js >=22 <23 || >=24 <27, ES Modules ("type": "module").
+  - Next.js 16 App Router; TypeScript 6 (strict:false — prefer explicit types; target
+    ES2022, module esnext, resolution bundler); Tailwind CSS v4; Electron.
+  - SQLite via better-sqlite3 (DATA_DIR, default ~/.omniroute/), WAL journaling.
+  - Streaming: SSE via the open-sse workspace.
+  - Validation: Zod v4 for ALL API / MCP input.
+  - i18n: next-intl, 42 locales. Default port 20128 (API + dashboard same port).
+  - Path aliases: @/* -> src/, @omniroute/open-sse -> open-sse/, @omniroute/open-sse/* -> open-sse/*.
+
+  Request pipeline:
+  Client -> src/app/api/v1/.../route.ts (CORS -> Zod body validation -> optional auth ->
+  API-key policy -> prompt-injection guard) -> open-sse/handlers/chatCore.ts::handleChatCore()
+  (cache check -> rate limit -> combo routing? -> translateRequest() -> getExecutor() ->
+  executor.execute() -> fetch upstream with retry/backoff -> response translation ->
+  SSE stream or JSON). Responses API runs through responsesTransformer.ts TransformStream.
+  No global Next.js middleware — interception is route-specific.
+
+  Architecture layers: API routes src/app/api/v1/, handlers open-sse/handlers/, executors
+  open-sse/executors/ (extend BaseExecutor), translators open-sse/translator/, transformer
+  open-sse/transformer/, services open-sse/services/ (combo routing = 15 strategies,
+  9-factor Auto-Combo scoring), DB src/lib/db/ (83 domain modules, 97 migrations), domain
+  policy src/domain/, MCP server open-sse/mcp-server/ (87 tools, 3 transports, 30 scopes),
+  A2A src/lib/a2a/, skills src/lib/skills/, memory src/lib/memory/, authz src/server/authz/.
+
+  Resilience (keep the three scopes separate when debugging):
+  - Provider circuit breaker — whole provider (src/shared/utils/circuitBreaker.ts).
+  - Connection cooldown — one account/key (auth.ts markAccountUnavailable).
+  - Model lockout — provider+connection+model (accountFallback.ts).
+  See docs/architecture/RESILIENCE_GUIDE.md.
+
+  Hard rules (canonical list + rationale: CLAUDE.md "Hard Rules"):
+  1 never commit secrets/credentials. 2 never add logic to src/lib/localDb.ts (re-export
+  barrel only). 3 never eval()/new Function()/implied eval. 4 never commit directly to
+  main. 5 never write raw SQL in routes — use src/lib/db/ modules. 6 never silently
+  swallow errors in SSE streams. 7 always validate inputs with Zod. 8 always include
+  tests when changing production code. 9 coverage must not regress below the
+  quality-baseline ratchet; absolute floor 60/60/60/60 (statements/lines/functions/
+  branches) — verify with `npm run test:coverage`. 10 never bypass Husky hooks
+  (--no-verify/--no-gpg-sign) without operator approval. 11 never embed public upstream
+  OAuth client_id/secret or Firebase Web keys as literals — use resolvePublicCred()
+  (open-sse/utils/publicCreds.ts). 12 never return raw err.stack/err.message in
+  HTTP/SSE/executor/MCP responses — use buildErrorBody()/sanitizeErrorMessage()
+  (open-sse/utils/error.ts). 13 never string-interpolate external paths/runtime values
+  into exec()/spawn() — pass via the env option. 14 never dismiss CodeQL/secret-scan
+  alerts without checking the helper applies + a technical justification. 15 & 17 never
+  expose child-process-spawning routes (/api/mcp/, /api/cli-tools/runtime/, /api/services/)
+  without isLocalOnlyPath() in src/server/authz/routeGuard.ts. 16 never add Co-Authored-By
+  trailers crediting an AI/bot; human collaborators MAY be credited. 18 every bug fix
+  validated by a failing->passing test (TDD) OR a documented VPS (192.168.0.15) live test.
+  19 never develop on the shared main checkout — each task in its own git worktree on its
+  own branch, base branch confirmed with the operator first.
+
+  Code style: 2 spaces, semicolons, double quotes, 100 char width, es5 trailing commas
+  (Prettier via lint-staged). Imports: external -> internal (@/, @omniroute/open-sse) ->
+  relative. Files camelCase/kebab, components PascalCase, constants UPPER_SNAKE.
+  ESLint no-eval / no-implied-eval / no-new-func = error everywhere.
+
+  File placement: ALL tests under tests/ (tests/unit, tests/integration, ...), never in
+  the repo root. ALL maintenance/debug/one-off scripts under scripts/<subfolder>
+  (build/dev/check/docs/i18n/ad-hoc), never loose in / or the top-level scripts/.
+
+  Testing: two non-overlapping runners both gate CI and both must pass —
+  `npm run test:unit` (Node native, most tests) and `npm run test:vitest` (MCP server,
+  autoCombo, cache). Single file: node --import tsx/esm --test tests/unit/<file>.test.ts.
+  Coverage gate: `npm run test:coverage` (60/60/60/60). Unit tests that open SQLite must
+  call resetDbInstance() and close handles in test.after() or the native runner hangs.
+
+  Git: branch prefixes feat/ fix/ refactor/ docs/ test/ chore/. Conventional Commits with
+  scopes (db, sse, oauth, dashboard, api, cli, docker, ci, mcp, a2a, memory, skills,
+  cloud-agent, guardrails, compression, auto-combo, resilience, providers, executors,
+  translator, domain, authz). Keep fork-only operational changes out of upstream PRs; for
+  an upstream PR, branch from upstream/main.
+
+  Docs accuracy: never document an API name/endpoint/path/CLI/env var without grepping it
+  first; never write a count/size from memory. Enforced by `npm run check:fabricated-docs`.
+  Area deep-dives live under docs/ (see the reference table in CLAUDE.md / AGENTS.md).
+
+# Per-artifact rules — constraints applied while generating each artifact.
+# (Quoted single-line scalars: list items contain ": " which YAML would otherwise read as a key.)
+rules:
+  proposal:
+    - 'State the problem and why it matters; include an explicit "Non-goals" section.'
+    - "Name the affected architecture layers/modules (route, handler, executor, translator, service, db module, domain policy) using real paths."
+    - "Link the matching docs/ deep-dive(s) for the area instead of re-explaining them."
+    - "Flag any security-sensitive surface (new provider creds, error responses, routes that spawn child processes, shell exec) so the right Hard Rule is applied during design."
+    - "Note whether the change is fork-only operational or upstream-contributable."
+  design:
+    - "Cite real source as file.ts:line; never invent a signature. If grep finds no name in src/ open-sse/ bin/, the name does not exist — do not reference it."
+    - "Respect the pipeline order (CORS -> Zod -> auth -> policy -> handler) and route all DB access through src/lib/db/ modules (never raw SQL; never add logic to localDb.ts)."
+    - "Apply security patterns: public creds via resolvePublicCred(); error bodies via buildErrorBody()/sanitizeErrorMessage(); exec/spawn runtime values via env; child-process-spawning routes classified isLocalOnlyPath()."
+    - "Keep the three resilience mechanisms (circuit breaker / connection cooldown / model lockout) scoped correctly — do not conflate them."
+    - "Validate all new inputs with Zod v4 schemas."
+  tasks:
+    - 'Every bug fix needs a failing->passing test (TDD, preferred) or a documented VPS (192.168.0.15) live test recorded in the PR; "worked locally" is not validation.'
+    - "Add/update tests in the SAME change for any production code touched (src/, open-sse/, electron/, bin/); keep both runners green (test:unit AND test:vitest); coverage stays at or above 60/60/60/60."
+    - "Put tests under tests/<layer>/ and any helper scripts under scripts/<subfolder>; never in the repo root."
+    - "Do the work in a dedicated git worktree on a feat/|fix/|... branch cut from the operator-confirmed base branch; never develop on the shared main checkout."
+    - "Use Conventional Commit messages with a valid scope; do not bypass Husky hooks; no AI/bot Co-Authored-By trailers."
+    - "Keep scope surgical — touch only what the failing test proves is broken."

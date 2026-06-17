@@ -174,6 +174,46 @@ Always run `prettier --write` on changed files.
 
 ---
 
+## Hard Rules
+
+Canonical list with rationale: [`CLAUDE.md`](CLAUDE.md) → "Hard Rules". Mirror for Codex / non-Claude agents (keep both in sync):
+
+1. Never commit secrets or credentials.
+2. Never add logic to `src/lib/localDb.ts` (re-export barrel only).
+3. Never use `eval()` / `new Function()` / implied eval (ESLint-enforced everywhere).
+4. Never commit directly to `main` — use `feat/` `fix/` `refactor/` `docs/` `test/` `chore/` branches.
+5. Never write raw SQL in routes — use `src/lib/db/` domain modules.
+6. Never silently swallow errors in SSE streams.
+7. Always validate inputs with Zod schemas.
+8. Always include tests when changing production code (`src/`, `open-sse/`, `electron/`, `bin/`).
+9. Coverage must not regress below the `quality-baseline.json` ratchet; absolute floor **60 / 60 / 60 / 60** (statements / lines / functions / branches) — verify with `npm run test:coverage`.
+10. Never bypass Husky hooks (`--no-verify`, `--no-gpg-sign`) without explicit operator approval.
+11. Never embed public upstream OAuth client_id/secret or Firebase Web keys as string literals — use `resolvePublicCred()` (`open-sse/utils/publicCreds.ts`). See `docs/security/PUBLIC_CREDS.md`.
+12. Never return raw `err.stack` / `err.message` in HTTP / SSE / executor / MCP responses — use `buildErrorBody()` / `sanitizeErrorMessage()` (`open-sse/utils/error.ts`). See `docs/security/ERROR_SANITIZATION.md`.
+13. Never string-interpolate external paths / runtime values into `exec()` / `spawn()` scripts — pass via the `env` option. Reference: `src/mitm/cert/install.ts::updateNssDatabases`.
+14. Never dismiss a CodeQL / Secret-Scanning alert without checking the documented helper applies and recording a technical justification.
+15. Never expose routes that spawn child processes (`/api/mcp/`, `/api/cli-tools/runtime/`) without `isLocalOnlyPath()` classification in `src/server/authz/routeGuard.ts`. See `docs/security/ROUTE_GUARD_TIERS.md`.
+16. Never include `Co-Authored-By` trailers crediting an AI assistant / bot; human collaborators MAY and SHOULD be credited with standard `Co-authored-by:` trailers.
+17. Never expose routes under `/api/services/` or `/dashboard/providers/services/*/embed/` without `isLocalOnlyPath()` classification (they can spawn `npm install` / `node`).
+18. Every bug fix must be validated by a failing-then-passing test (TDD) OR a documented live test on the production VPS (`192.168.0.15`) — "worked locally" is not validation.
+19. Never develop on the shared `main` checkout — every task runs in its own git worktree on its own branch, cut from an operator-confirmed base branch.
+
+## Worktree Isolation (mandatory for every dev task)
+
+The main checkout is shared across parallel sessions/agents. A `git checkout` / branch switch there silently discards another session's uncommitted work. So: **confirm the base branch with the operator first**, then create an isolated worktree on its own branch, work / commit / push / open the PR from inside it, tear down only the worktrees and branches you created (by name — never `fix/*` / `feat/*` wildcards), and end on the branch you started on. Full procedure: [`CLAUDE.md`](CLAUDE.md) → "Worktree isolation".
+
+## File Placement
+
+- **Tests**: ALL unit / integration / ecosystem / Vitest files live under `tests/` (`tests/unit/`, `tests/integration/`, …) — never in the repo root.
+- **Scripts**: ALL maintenance / debug / generation / one-off scripts live under a `scripts/` subfolder (`build/`, `dev/`, `check/`, `docs/`, `i18n/`, `ad-hoc/`) — never loose in `/` or the top-level `scripts/`. One-shot / experimental code → `scripts/ad-hoc/`.
+- The repo root holds only config, dependency, documentation, and CI / ignore files.
+
+## OpenSpec Workflow
+
+Spec-driven changes use OpenSpec (`openspec/`). Project context + per-artifact rules (proposal / design / tasks) live in [`openspec/config.yaml`](openspec/config.yaml) and mirror the rules above. Workflow: `/opsx:propose` → `/opsx:apply` → `/opsx:archive`.
+
+---
+
 ## Architecture
 
 ### Data Layer (`src/lib/db/`)
@@ -534,32 +574,32 @@ Cloudflare Quick/Named, ngrok, Tailscale Funnel. See [`docs/ops/TUNNELS_GUIDE.md
 
 For any non-trivial change, read the matching deep-dive first:
 
-| Area                                       | Doc                                                                                                                                 |
-| ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------- |
-| Repo navigation                            | [`docs/architecture/REPOSITORY_MAP.md`](docs/architecture/REPOSITORY_MAP.md)                                                        |
-| Architecture                               | [`docs/architecture/ARCHITECTURE.md`](docs/architecture/ARCHITECTURE.md)                                                            |
-| Engineering reference                      | [`docs/architecture/CODEBASE_DOCUMENTATION.md`](docs/architecture/CODEBASE_DOCUMENTATION.md)                                        |
-| Auto-Combo (12-factor, 15 strategies)      | [`docs/routing/AUTO-COMBO.md`](docs/routing/AUTO-COMBO.md)                                                                          |
-| Resilience (3 layers)                      | [`docs/architecture/RESILIENCE_GUIDE.md`](docs/architecture/RESILIENCE_GUIDE.md)                                                    |
-| Skills                                     | [`docs/frameworks/SKILLS.md`](docs/frameworks/SKILLS.md)                                                                            |
-| Memory                                     | [`docs/frameworks/MEMORY.md`](docs/frameworks/MEMORY.md)                                                                            |
-| Cloud agents                               | [`docs/frameworks/CLOUD_AGENT.md`](docs/frameworks/CLOUD_AGENT.md)                                                                  |
-| Guardrails                                 | [`docs/security/GUARDRAILS.md`](docs/security/GUARDRAILS.md)                                                                        |
-| Evals                                      | [`docs/frameworks/EVALS.md`](docs/frameworks/EVALS.md)                                                                              |
-| Compliance                                 | [`docs/security/COMPLIANCE.md`](docs/security/COMPLIANCE.md)                                                                        |
-| Webhooks                                   | [`docs/frameworks/WEBHOOKS.md`](docs/frameworks/WEBHOOKS.md)                                                                        |
-| Authz                                      | [`docs/architecture/AUTHZ_GUIDE.md`](docs/architecture/AUTHZ_GUIDE.md)                                                              |
-| Stealth                                    | [`docs/security/STEALTH_GUIDE.md`](docs/security/STEALTH_GUIDE.md)                                                                  |
-| Reasoning replay                           | [`docs/routing/REASONING_REPLAY.md`](docs/routing/REASONING_REPLAY.md)                                                              |
-| Agent protocols (A2A / ACP / Cloud)        | [`docs/frameworks/AGENT_PROTOCOLS_GUIDE.md`](docs/frameworks/AGENT_PROTOCOLS_GUIDE.md)                                              |
-| MCP server                                 | [`docs/frameworks/MCP-SERVER.md`](docs/frameworks/MCP-SERVER.md)                                                                    |
-| A2A server                                 | [`docs/frameworks/A2A-SERVER.md`](docs/frameworks/A2A-SERVER.md)                                                                    |
-| API reference                              | [`docs/reference/API_REFERENCE.md`](docs/reference/API_REFERENCE.md) + [`docs/reference/openapi.yaml`](docs/reference/openapi.yaml) |
-| Provider catalog (auto-generated)          | [`docs/reference/PROVIDER_REFERENCE.md`](docs/reference/PROVIDER_REFERENCE.md)                                                      |
-| Tunnels                                    | [`docs/ops/TUNNELS_GUIDE.md`](docs/ops/TUNNELS_GUIDE.md)                                                                            |
-| Electron desktop                           | [`docs/guides/ELECTRON_GUIDE.md`](docs/guides/ELECTRON_GUIDE.md)                                                                    |
-| Release flow                               | [`docs/ops/RELEASE_CHECKLIST.md`](docs/ops/RELEASE_CHECKLIST.md)                                                                    |
-| Quality gates (35 gates, allowlist policy) | [`docs/architecture/QUALITY_GATES.md`](docs/architecture/QUALITY_GATES.md)                                                          |
+| Area                                          | Doc                                                                                                                                 |
+| --------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Repo navigation                               | [`docs/architecture/REPOSITORY_MAP.md`](docs/architecture/REPOSITORY_MAP.md)                                                        |
+| Architecture                                  | [`docs/architecture/ARCHITECTURE.md`](docs/architecture/ARCHITECTURE.md)                                                            |
+| Engineering reference                         | [`docs/architecture/CODEBASE_DOCUMENTATION.md`](docs/architecture/CODEBASE_DOCUMENTATION.md)                                        |
+| Auto-Combo (9-factor scoring, 15 strategies)  | [`docs/routing/AUTO-COMBO.md`](docs/routing/AUTO-COMBO.md)                                                                          |
+| Resilience (3 layers)                         | [`docs/architecture/RESILIENCE_GUIDE.md`](docs/architecture/RESILIENCE_GUIDE.md)                                                    |
+| Skills                                        | [`docs/frameworks/SKILLS.md`](docs/frameworks/SKILLS.md)                                                                            |
+| Memory                                        | [`docs/frameworks/MEMORY.md`](docs/frameworks/MEMORY.md)                                                                            |
+| Cloud agents                                  | [`docs/frameworks/CLOUD_AGENT.md`](docs/frameworks/CLOUD_AGENT.md)                                                                  |
+| Guardrails                                    | [`docs/security/GUARDRAILS.md`](docs/security/GUARDRAILS.md)                                                                        |
+| Evals                                         | [`docs/frameworks/EVALS.md`](docs/frameworks/EVALS.md)                                                                              |
+| Compliance                                    | [`docs/security/COMPLIANCE.md`](docs/security/COMPLIANCE.md)                                                                        |
+| Webhooks                                      | [`docs/frameworks/WEBHOOKS.md`](docs/frameworks/WEBHOOKS.md)                                                                        |
+| Authz                                         | [`docs/architecture/AUTHZ_GUIDE.md`](docs/architecture/AUTHZ_GUIDE.md)                                                              |
+| Stealth                                       | [`docs/security/STEALTH_GUIDE.md`](docs/security/STEALTH_GUIDE.md)                                                                  |
+| Reasoning replay                              | [`docs/routing/REASONING_REPLAY.md`](docs/routing/REASONING_REPLAY.md)                                                              |
+| Agent protocols (A2A / ACP / Cloud)           | [`docs/frameworks/AGENT_PROTOCOLS_GUIDE.md`](docs/frameworks/AGENT_PROTOCOLS_GUIDE.md)                                              |
+| MCP server                                    | [`docs/frameworks/MCP-SERVER.md`](docs/frameworks/MCP-SERVER.md)                                                                    |
+| A2A server                                    | [`docs/frameworks/A2A-SERVER.md`](docs/frameworks/A2A-SERVER.md)                                                                    |
+| API reference                                 | [`docs/reference/API_REFERENCE.md`](docs/reference/API_REFERENCE.md) + [`docs/reference/openapi.yaml`](docs/reference/openapi.yaml) |
+| Provider catalog (auto-generated)             | [`docs/reference/PROVIDER_REFERENCE.md`](docs/reference/PROVIDER_REFERENCE.md)                                                      |
+| Tunnels                                       | [`docs/ops/TUNNELS_GUIDE.md`](docs/ops/TUNNELS_GUIDE.md)                                                                            |
+| Electron desktop                              | [`docs/guides/ELECTRON_GUIDE.md`](docs/guides/ELECTRON_GUIDE.md)                                                                    |
+| Release flow                                  | [`docs/ops/RELEASE_CHECKLIST.md`](docs/ops/RELEASE_CHECKLIST.md)                                                                    |
+| Quality gates (~48 scripts, allowlist policy) | [`docs/architecture/QUALITY_GATES.md`](docs/architecture/QUALITY_GATES.md)                                                          |
 
 ---
 
