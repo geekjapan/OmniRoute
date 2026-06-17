@@ -197,6 +197,7 @@ Canonical list with rationale: [`CLAUDE.md`](CLAUDE.md) → "Hard Rules". Mirror
 17. Never expose routes under `/api/services/` or `/dashboard/providers/services/*/embed/` without `isLocalOnlyPath()` classification (they can spawn `npm install` / `node`).
 18. Every bug fix must be validated by a failing-then-passing test (TDD) OR a documented live test on the production VPS (`192.168.0.15`) — "worked locally" is not validation.
 19. Never develop on the shared `main` checkout — every task runs in its own git worktree on its own branch, cut from an operator-confirmed base branch.
+20. Always open pull requests **inside this fork** (`geekjapan/OmniRoute`, the `origin` remote) by default — base = `geekjapan/OmniRoute:main`. Since this repo is a GitHub fork, the PR page and `gh pr create` default the base to upstream (`diegosouzapw/OmniRoute`); override with `gh pr create --repo geekjapan/OmniRoute --base main …`. Target upstream only when explicitly preparing an upstream contribution.
 
 ## Worktree Isolation (mandatory for every dev task)
 
@@ -608,6 +609,12 @@ For any non-trivial change, read the matching deep-dive first:
 This repository is a fork of `diegosouzapw/OmniRoute`. Keep fork-only operational
 changes (for example GHCR image publishing, personal deployment workflows, or local
 automation) out of upstream contribution PRs.
+
+**Default: open PRs inside this fork.** Create pull requests with base
+`geekjapan/OmniRoute:main` (the `origin` remote). GitHub's PR page and `gh pr create`
+default the base to the upstream parent, so override it:
+`gh pr create --repo geekjapan/OmniRoute --base main …`. Target upstream only when the
+change is explicitly an upstream contribution (procedure below). This is Hard Rule #20.
 
 When preparing a PR for upstream, always start the work branch from `upstream/main`,
 not from this fork's `main`:

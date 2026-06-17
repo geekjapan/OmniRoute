@@ -433,13 +433,14 @@ own dedicated branch, and you MUST confirm the base branch with the operator bef
 
    In Claude Code prefer the native `EnterWorktree` tool (create the worktree with the command
    above, then call `EnterWorktree` with its `path`).
+
 3. **Work, commit, push, open the PR — all from inside the worktree.** Never `git checkout` a
    different branch inside a worktree another session might share.
 4. **Tear down only your own** worktree + branch when done, from the main checkout:
    `git worktree remove .worktrees/<dir>` then `git branch -D <task>`. Never blanket-delete
    `fix/*`/`feat/*` — other sessions keep their own; delete only the branches you created, by name.
 5. **Never touch another session's worktree, branch, or uncommitted changes.** If `git worktree
-   list` shows worktrees you didn't create, leave them alone. End every session with the main
+list` shows worktrees you didn't create, leave them alone. End every session with the main
    checkout back on the branch it started on (the active `release/vX.Y.Z`, never `main`).
 
 ---
@@ -504,6 +505,7 @@ the stale-enforcement added in Fase 6A.3.
 17. Never expose routes under `/api/services/` or `/dashboard/providers/services/*/embed/` without `isLocalOnlyPath()` classification in `src/server/authz/routeGuard.ts`. These routes can spawn child processes (`npm install`, `node`). Loopback enforcement happens unconditionally before any auth check — a leaked JWT via tunnel cannot trigger process spawning. See `docs/security/ROUTE_GUARD_TIERS.md`.
 18. Every bug fix must be validated before shipping: a failing-then-passing unit/integration test (TDD) OR a documented live test on the production VPS (192.168.0.15). A fix without either is not merged. See Testing → "Bug fix / issue triage protocol" for the full decision tree.
 19. Never develop on the shared main checkout. Every development task runs in its own git worktree on its own dedicated branch, and you MUST confirm the base branch with the operator (e.g. via `AskUserQuestion`) before creating the worktree/branch — never assume `main` or the currently checked-out branch. A `git checkout` in the shared checkout silently destroys other sessions' uncommitted work. Tear down only the worktrees/branches you created (by name, never `fix/*`/`feat/*` wildcards), leave other sessions' worktrees untouched, and end on the branch you started on (the active `release/vX.Y.Z`, never `main`). See Git Workflow → "Worktree isolation".
+20. Always open pull requests **inside this fork** (`geekjapan/OmniRoute`, the `origin` remote) by default — base = `geekjapan/OmniRoute:main`. Because this repo is a GitHub fork of `diegosouzapw/OmniRoute`, GitHub's "Create pull request" page and `gh pr create` default the base to the upstream parent, so you MUST override it: `gh pr create --repo geekjapan/OmniRoute --base main …` (or switch the base repository in the UI to `geekjapan/OmniRoute`). Only target upstream (`diegosouzapw/OmniRoute`) when explicitly preparing an upstream contribution.
 
 ---
 
