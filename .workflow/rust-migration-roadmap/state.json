@@ -1,0 +1,51 @@
+{
+  "title": "Rust migration roadmap",
+  "slug": "rust-migration-roadmap",
+  "created_at": "2026-06-17T06:26:51+00:00",
+  "status": "completed",
+  "approval": {
+    "required": false,
+    "granted": true,
+    "notes": "User requested parallel subagents; no destructive, external, deployment, credential, or production-data action is planned. Commits/push/PR remain gated."
+  },
+  "packets": [
+    {
+      "id": "P1-api-streaming-routing",
+      "status": "completed",
+      "branch": "feature/rust-roadmap-api-streaming",
+      "worktree": "C:\\Users\\geekjapan\\.codex\\worktrees\\8f13\\OmniRoute-rust-roadmap-p1"
+    },
+    {
+      "id": "P2-data-protocols-domain",
+      "status": "completed",
+      "branch": "feature/rust-roadmap-data-protocols",
+      "worktree": "C:\\Users\\geekjapan\\.codex\\worktrees\\8f13\\OmniRoute-rust-roadmap-p2"
+    },
+    {
+      "id": "P3-ui-desktop-cli-quality",
+      "status": "completed",
+      "branch": "feature/rust-roadmap-ui-desktop-quality",
+      "worktree": "C:\\Users\\geekjapan\\.codex\\worktrees\\8f13\\OmniRoute-rust-roadmap-p3"
+    },
+    {
+      "id": "P4-security-validation-shared",
+      "status": "completed",
+      "branch": "feature/rust-roadmap-security-validation",
+      "worktree": "C:\\Users\\geekjapan\\.codex\\worktrees\\8f13\\OmniRoute-rust-roadmap-p4"
+    },
+    {
+      "id": "P5-integration",
+      "status": "completed",
+      "branch": "feature/rust-migration-roadmap-orchestration",
+      "worktree": "C:\\Users\\geekjapan\\.codex\\worktrees\\8f13\\OmniRoute-rust-roadmap"
+    }
+  ],
+  "verification": {
+    "status": "completed",
+    "checks": [
+      "verify_workflow.py: passed",
+      "npm run check:docs-counts: passed with 2 existing soft executor-count drifts",
+      "npm run check:fabricated-docs: passed"
+    ]
+  }
+}
