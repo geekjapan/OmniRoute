@@ -60,7 +60,10 @@ context: |
   trailers crediting an AI/bot; human collaborators MAY be credited. 18 every bug fix
   validated by a failing->passing test (TDD) OR a documented VPS (192.168.0.15) live test.
   19 never develop on the shared main checkout — each task in its own git worktree on its
-  own branch, base branch confirmed with the operator first.
+  own branch, base branch confirmed with the operator first. 20 always open PRs inside the
+  fork geekjapan/OmniRoute (base geekjapan/OmniRoute:main); GitHub's PR page and gh default
+  the base to upstream — override with gh pr create --repo geekjapan/OmniRoute --base main;
+  target upstream (diegosouzapw/OmniRoute) only when explicitly contributing upstream.
 
   Code style: 2 spaces, semicolons, double quotes, 100 char width, es5 trailing commas
   (Prettier via lint-staged). Imports: external -> internal (@/, @omniroute/open-sse) ->
@@ -108,4 +111,5 @@ rules:
     - "Put tests under tests/<layer>/ and any helper scripts under scripts/<subfolder>; never in the repo root."
     - "Do the work in a dedicated git worktree on a feat/|fix/|... branch cut from the operator-confirmed base branch; never develop on the shared main checkout."
     - "Use Conventional Commit messages with a valid scope; do not bypass Husky hooks; no AI/bot Co-Authored-By trailers."
+    - "Open pull requests inside the fork (geekjapan/OmniRoute, base main) by default via gh pr create --repo geekjapan/OmniRoute --base main; never default to the upstream parent diegosouzapw/OmniRoute."
     - "Keep scope surgical — touch only what the failing test proves is broken."
