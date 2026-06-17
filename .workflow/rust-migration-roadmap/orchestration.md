@@ -16,13 +16,13 @@
 
 - Integration branch/worktree:
   - Branch: `feature/rust-migration-roadmap-orchestration`
-  - Path: `C:\Users\geekjapan\.codex\worktrees\8f13\OmniRoute-rust-roadmap`
+  - Path: `<integration-worktree>`
 - Worker branches/worktrees, all based on `origin/main`:
   - `feature/rust-roadmap-api-streaming`
   - `feature/rust-roadmap-data-protocols`
   - `feature/rust-roadmap-ui-desktop-quality`
   - `feature/rust-roadmap-security-validation`
-- Do not touch the shared checkout `D:\dev\OmniRoute` except to read the source
+- Do not touch the shared checkout `<shared-checkout>` except to read the source
   handoff file.
 - Do not commit, push, or open PRs without explicit approval.
 

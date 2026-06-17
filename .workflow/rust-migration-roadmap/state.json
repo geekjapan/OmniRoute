@@ -13,31 +13,31 @@
       "id": "P1-api-streaming-routing",
       "status": "completed",
       "branch": "feature/rust-roadmap-api-streaming",
-      "worktree": "C:\\Users\\geekjapan\\.codex\\worktrees\\8f13\\OmniRoute-rust-roadmap-p1"
+      "worktree": "<packet-worktree-P1>"
     },
     {
       "id": "P2-data-protocols-domain",
       "status": "completed",
       "branch": "feature/rust-roadmap-data-protocols",
-      "worktree": "C:\\Users\\geekjapan\\.codex\\worktrees\\8f13\\OmniRoute-rust-roadmap-p2"
+      "worktree": "<packet-worktree-P2>"
     },
     {
       "id": "P3-ui-desktop-cli-quality",
       "status": "completed",
       "branch": "feature/rust-roadmap-ui-desktop-quality",
-      "worktree": "C:\\Users\\geekjapan\\.codex\\worktrees\\8f13\\OmniRoute-rust-roadmap-p3"
+      "worktree": "<packet-worktree-P3>"
     },
     {
       "id": "P4-security-validation-shared",
       "status": "completed",
       "branch": "feature/rust-roadmap-security-validation",
-      "worktree": "C:\\Users\\geekjapan\\.codex\\worktrees\\8f13\\OmniRoute-rust-roadmap-p4"
+      "worktree": "<packet-worktree-P4>"
     },
     {
       "id": "P5-integration",
       "status": "completed",
       "branch": "feature/rust-migration-roadmap-orchestration",
-      "worktree": "C:\\Users\\geekjapan\\.codex\\worktrees\\8f13\\OmniRoute-rust-roadmap"
+      "worktree": "<integration-worktree>"
     }
   ],
   "verification": {

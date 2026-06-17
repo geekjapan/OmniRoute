@@ -140,7 +140,7 @@ This checklist follows `docs/migration/RUST_MIGRATION_ROADMAP.md`.
 ## Required Verification Before Publishing Updates
 
 - [ ] Run `npm run check:docs-counts`.
-- [ ] Run `npm run check:fabricated-docs`.
+- [ ] Run `npm run check:fabricated-docs -- --strict`.
 - [ ] Run `npm run check:route-validation:t06` when route docs or route classifications change.
 - [ ] Run `npm run check:error-helper` when error-handling docs or helpers change.
 - [ ] Run focused unit or fixture tests for every production-code migration slice.

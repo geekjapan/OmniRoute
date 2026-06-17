@@ -11,7 +11,7 @@ Produce a source-grounded migration assessment for these handoff subsystems:
 
 ## Context
 
-Source handoff: `D:\dev\OmniRoute\docs\handoff.md`.
+Source handoff: `docs/handoff.md`.
 
 ## Ownership
 
@@ -31,7 +31,7 @@ Read-only source analysis plus one result file in the packet worktree:
 
 - Do not edit production code.
 - Do not edit docs outside the packet result file.
-- Do not modify `D:\dev\OmniRoute`.
+- Do not modify `<shared-checkout>`.
 - Do not commit, push, or open PRs.
 
 ## Expected Output

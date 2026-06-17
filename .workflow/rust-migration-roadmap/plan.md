@@ -3,7 +3,7 @@
 ## Goal
 
 Create the Rust migration planning deliverables requested by
-`D:\dev\OmniRoute\docs\handoff.md`:
+`docs/handoff.md`:
 
 - `docs/migration/RUST_MIGRATION_ROADMAP.md`
 - `docs/migration/RUST_MIGRATION_TODO.md`
@@ -22,10 +22,10 @@ The deliverables are planning docs only. No production code migration is in scop
 
 ## Current Context
 
-- Source handoff: `D:\dev\OmniRoute\docs\handoff.md` (untracked in the shared main
+- Source handoff: `docs/handoff.md` (untracked in the shared main
   checkout; do not edit that checkout).
 - Integration worktree:
-  `C:\Users\geekjapan\.codex\worktrees\8f13\OmniRoute-rust-roadmap`
+  `<integration-worktree>`
 - Integration branch: `feature/rust-migration-roadmap-orchestration`
 - Base: `origin/main` at `e2bee77e767c3d878dc82a847c1d0fca3ce29604`
 - Prior failed run launched 16 agents at once and hit a transient service rate limit.
@@ -34,7 +34,7 @@ The deliverables are planning docs only. No production code migration is in scop
 
 - User-facing coordination and final report are Japanese.
 - Operational artifacts and docs are English to match the repository's docs style.
-- Do not modify `D:\dev\OmniRoute` because it contains unrelated local changes.
+- Do not modify `<shared-checkout>` because it contains unrelated local changes.
 - Do not commit secrets or machine-local auth/cache material.
 - Do not commit directly to `main`.
 - For markdown claims, grep or count before documenting precise names/counts.
@@ -76,10 +76,10 @@ The deliverables are planning docs only. No production code migration is in scop
 ## Verification
 
 - Run workflow artifact completeness check:
-  `python C:\Users\geekjapan\.codex\skills\codex-dynamic-workflows\scripts\verify_workflow.py .workflow\rust-migration-roadmap`
+  `python <codex-dynamic-workflows>/scripts/verify_workflow.py .workflow\rust-migration-roadmap`
 - Run docs-focused checks when feasible:
   - `npm run check:docs-counts`
-  - `npm run check:fabricated-docs`
+  - `npm run check:fabricated-docs -- --strict`
 - If broad docs checks fail on pre-existing docs outside touched files, record the exact
   failure and perform targeted verification for the new docs.
 

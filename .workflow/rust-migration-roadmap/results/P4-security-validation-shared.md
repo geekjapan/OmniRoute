@@ -1,6 +1,6 @@
 # Packet P4 - Security, Validation, Shared Constants
 
-Worktree: `C:\Users\geekjapan\.codex\worktrees\8f13\OmniRoute-rust-roadmap-p4`
+Worktree: `<packet-worktree-P4>`
 
 Branch: `feature/rust-roadmap-security-validation`
 
@@ -463,11 +463,11 @@ unrelated doc drift discovered by those gates.
 
 ## Verification Evidence
 
-Commands run from `C:\Users\geekjapan\.codex\worktrees\8f13\OmniRoute-rust-roadmap-p4`:
+Commands run from `<packet-worktree-P4>`:
 
 - `Get-Content -Raw -LiteralPath AGENTS.md`
 - `Get-Content -Raw -LiteralPath CLAUDE.md`
-- `Get-Content -Raw -LiteralPath D:\dev\OmniRoute\docs\handoff.md`
+- `Get-Content -Raw -LiteralPath docs/handoff.md`
 - `git status --short --branch`
 - `git rev-parse HEAD`
 - `git branch --show-current`

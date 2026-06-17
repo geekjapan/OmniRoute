@@ -3,13 +3,13 @@
 Packet scope: `frontend-dashboard`, `electron-desktop`, `cli-bootstrap-services`,
 `testing-quality-cicd`.
 
-Source handoff read: `D:\dev\OmniRoute\docs\handoff.md`. This is an analysis result only;
+Source handoff read: `docs/handoff.md`. This is an analysis result only;
 no production-code changes were made.
 
 ## Evidence Baseline
 
 - Current branch/worktree: `feature/rust-roadmap-ui-desktop-quality` in
-  `C:/Users/geekjapan/.codex/worktrees/8f13/OmniRoute-rust-roadmap-p3`.
+  `<packet-worktree-P3>`.
 - Node runtime range is `>=22.0.0 <23 || >=24.0.0 <27` (`package.json:46`).
 - The app is an ES module package with CLI binaries `omniroute` and
   `omniroute-reset-password` (`package.json:5`, `package.json:6`).
@@ -421,7 +421,7 @@ Commands run:
 
 - `Get-Content -Raw AGENTS.md`
 - `Get-Content -Raw CLAUDE.md`
-- `Get-Content -Raw D:\dev\OmniRoute\docs\handoff.md`
+- `Get-Content -Raw docs/handoff.md`
 - `git rev-parse --show-toplevel; git branch --show-current; git status --short`
 - `rg --files "src/app/(dashboard)" "src/shared/components" "src/i18n"`
 - PowerShell count of dashboard pages/files, shared components, i18n files, CLI locale files,

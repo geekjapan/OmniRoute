@@ -3,7 +3,7 @@
 Worker packet for the Rust migration roadmap. Scope is read-only assessment of the
 `database`, `mcp-server`, `agent-protocols`, and `domain-extras` subsystems.
 
-Source handoff read: `D:\dev\OmniRoute\docs\handoff.md`. Worktree instructions read from
+Source handoff read: `docs/handoff.md`. Worktree instructions read from
 `AGENTS.md` and `CLAUDE.md` in this worktree before analysis.
 
 ## Evidence Baseline
@@ -346,12 +346,12 @@ Source handoff read: `D:\dev\OmniRoute\docs\handoff.md`. Worktree instructions r
 
 ## Verification Evidence
 
-Commands run from `C:\Users\geekjapan\.codex\worktrees\8f13\OmniRoute-rust-roadmap-p2`
+Commands run from `<packet-worktree-P2>`
 unless noted otherwise:
 
 - `Get-Content -Raw AGENTS.md`
 - `Get-Content -Raw CLAUDE.md`
-- `Get-Content -Raw D:\dev\OmniRoute\docs\handoff.md`
+- `Get-Content -Raw docs/handoff.md`
 - `(Get-ChildItem src\lib\db -Filter *.ts).Count`
 - `(Get-ChildItem src\lib\db\migrations -Filter *.sql).Count`
 - `rg -n "better-sqlite3|journal_mode|SCHEMA_SQL|getDbInstance|DATA_DIR|CREATE TABLE|_omniroute_migrations" src\lib\db\core.ts src\lib\db\migrationRunner.ts`

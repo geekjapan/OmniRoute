@@ -491,13 +491,13 @@ notes:
 
 ## Verification Evidence
 
-Commands run from `C:\Users\geekjapan\.codex\worktrees\8f13\OmniRoute-rust-roadmap-p1`
+Commands run from `<packet-worktree-P1>`
 unless an absolute path is shown:
 
 ```powershell
 Get-Content -Raw -LiteralPath AGENTS.md
 if (Test-Path -LiteralPath CLAUDE.md) { Get-Content -Raw -LiteralPath CLAUDE.md }
-Get-Content -Raw -LiteralPath D:\dev\OmniRoute\docs\handoff.md
+Get-Content -Raw -LiteralPath docs/handoff.md
 ```
 
 ```powershell
@@ -559,7 +559,7 @@ rg -n "ollama|Ollama|FORMATS\.OLLAMA|targetFormat.*ollama" open-sse src/shared s
 ```
 
 ```powershell
-rg -n "graphify|GRAPH_REPORT|rust|migration|roadmap|Packet|P1|http-api-authz|streaming-core|executors-translators|routing-resilience" D:\dev\OmniRoute\docs\handoff.md . -g "!node_modules" -g "!dist" -g "!.build"
+rg -n "graphify|GRAPH_REPORT|rust|migration|roadmap|Packet|P1|http-api-authz|streaming-core|executors-translators|routing-resilience" docs/handoff.md . -g "!node_modules" -g "!dist" -g "!.build"
 ```
 
 Post-write checks:
@@ -569,7 +569,7 @@ Test-Path -LiteralPath .workflow/rust-migration-roadmap/results/P1-api-streaming
 (Get-Content -LiteralPath .workflow/rust-migration-roadmap/results/P1-api-streaming-routing.md).Count
 rg -n "^## Subsystem:|^current_stack:|^rust_targets:|^complexity:|^key_tasks:|^risks:|^blockers:|^depends_on:|^effort_person_weeks:|^notes:|^## Combined Risk Summary|^## Verification Evidence" .workflow/rust-migration-roadmap/results/P1-api-streaming-routing.md
 git status --short --branch
-git -C C:\Users\geekjapan\.codex\worktrees\8f13\OmniRoute status --short --branch
+git -C <shared-checkout> status --short --branch
 Get-ChildItem -Recurse -File -LiteralPath .workflow/rust-migration-roadmap/results | Select-Object -ExpandProperty FullName
 git status --short --untracked-files=all
 git diff -- .workflow/rust-migration-roadmap/results/P1-api-streaming-routing.md

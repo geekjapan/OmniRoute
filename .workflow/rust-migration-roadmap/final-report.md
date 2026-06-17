@@ -35,11 +35,11 @@ Created the Rust migration planning deliverables:
 
 ## Verification Evidence
 
-- `python C:\Users\geekjapan\.codex\skills\codex-dynamic-workflows\scripts\verify_workflow.py .workflow\rust-migration-roadmap`
+- `python <codex-dynamic-workflows>/scripts/verify_workflow.py .workflow\rust-migration-roadmap`
   passed.
 - `npm run check:docs-counts` passed with 2 existing soft executor-count drifts in
   architecture docs.
-- `npm run check:fabricated-docs` passed.
+- `npm run check:fabricated-docs -- --strict` passed.
 - `npx --yes prettier@3.8.3 --write ...` formatted the changed docs and workflow files.
 - Initial packet evidence is copied into `.workflow/rust-migration-roadmap/results/`.
 
