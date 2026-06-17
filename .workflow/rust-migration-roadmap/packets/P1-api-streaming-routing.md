@@ -1,0 +1,43 @@
+# Packet P1: API, Streaming, Executors, Routing
+
+## Objective
+
+Produce a source-grounded migration assessment for these handoff subsystems:
+
+- `http-api-authz`
+- `streaming-core`
+- `executors-translators`
+- `routing-resilience`
+
+## Context
+
+Source handoff: `docs/handoff.md`.
+
+## Ownership
+
+Read-only source analysis plus one result file in the packet worktree:
+`.workflow/rust-migration-roadmap/results/P1-api-streaming-routing.md`.
+
+## Do
+
+- Inspect actual files before making claims.
+- Cite source paths and lines for key behavior.
+- Include current stack, Rust targets, complexity, key tasks, risks, blockers,
+  dependencies, effort range, and notes.
+- Pay special attention to streaming/SSE parity, provider executor abstraction,
+  retry/backoff, response transforms, combo routing strategies, and compression.
+
+## Do Not
+
+- Do not edit production code.
+- Do not edit docs outside the packet result file.
+- Do not modify `<shared-checkout>`.
+- Do not commit, push, or open PRs.
+
+## Expected Output
+
+One markdown result file with a concise assessment per subsystem and a combined risk summary.
+
+## Verification
+
+Run narrow grep/count commands for any exact names or counts used in the result.
